@@ -190,7 +190,6 @@ token_list_node_t *tl_evalop(token_list_t *tl, uint32_t index) {
 // }
 
 token_list_node_t *tl_replace(token_list_t *tl, uint32_t index, token_t token) {
-    printf("[TL] {%p} REPLACE[%d]\n", (void *) tl, index);
 
     token_list_node_t *curr = tl->begin;
     token_list_node_t *last = NULL;
@@ -248,6 +247,7 @@ void tl_print(token_list_t *tl) {
     token_list_node_t *curr = tl->begin;
 
     static int depth = 0;
+    static bool is_exp = false;
     depth++;
 
     printf("tokenlist[%u]\n", tl->size);
@@ -259,25 +259,29 @@ void tl_print(token_list_t *tl) {
         token_t *t = &curr->token;
         switch(t->type) {
         case TT_REAL:
-            printf("[%u] Real(%.02Lf)\n", i++, t->data.d);
+            printf("[%u] Real(%.02Lf)", i++, t->data.d);
             break;
         case TT_COMPLEX:
-            printf("[%u] Complex(%.02Lf, %.02Lf)\n", i++, t->data.c.real, t->data.c.imag);
+            printf("[%u] Complex(%.02Lf, %.02Lf)", i++, t->data.c.real, t->data.c.imag);
             break;
         case TT_OPERATOR:
-            printf("[%u] Op(%c)\n", i++, t->data.op.sym);
+            printf("[%u] Op(%c)", i++, t->data.op.sym);
             break;
         case TT_SYMBOL:
-            printf("[%u] Sym(%s)\n", i++, t->data.sym);
+            printf("[%u] Sym(%s)", i++, t->data.sym);
             break;
         case TT_FUNCTION:
-            printf("[%u] Function(%s, %u)\n", i++, t->data.f.name, t->data.f.nargs);
+            printf("[%u] Function(%s, %u)", i++, t->data.f.name, t->data.f.nargs);
             break;
         case TT_EXPRESSION:
-            printf("EXPRESSION\n");
+            is_exp = true;
+            printf("Expression(");
             tl_print(t->data.expr);
+            printf(")\n");
+            is_exp = false;
             break;
         }
+        printf(is_exp ? ", " : "\n");
         curr = curr->next;
     }
     depth--;

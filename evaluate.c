@@ -33,7 +33,6 @@
 // }
 
 int evaluate_tokenized(token_list_t *tokens, token_t *token) {
-    // printf("eval tokenized\n");
 
     for(int8_t pr = MAX_PRIORITY; pr >= 0; pr--) {
 
@@ -44,11 +43,15 @@ int evaluate_tokenized(token_list_t *tokens, token_t *token) {
         int err;
         while(curr != NULL) {
             if(curr->token.type == TT_OPERATOR && curr->token.data.op.priority == pr) {
+                bool binary = curr->token.data.op.type == OP_BINARY;
                 curr = tl_evalop(tokens, index);
+                if(binary)
+                    index--;
             } else if(curr->token.type == TT_EXPRESSION) {
-                if((err = evaluate_tokenized(tokens, &ev_expr)))
+                if((err = evaluate_tokenized(curr->token.data.expr, &ev_expr))) {
                     return err;
-                tl_replace(tokens, index, ev_expr);
+                }
+                curr = tl_replace(tokens, index, ev_expr);
             } else if(curr->token.type == TT_FUNCTION) {
 
                 token_list_t *args = tl_init();
@@ -64,13 +67,11 @@ int evaluate_tokenized(token_list_t *tokens, token_t *token) {
                     tl_append(args, ev_expr);
                 }
 
-                // tl_print(args);
                 common_func_t *f = get_func(func->name);
                 if(f == NULL)
                     return NOSYM_ERROR;
 
-                tl_replace(tokens, index, f(args));
-                tl_print(tokens);
+                curr = tl_replace(tokens, index, f(args));
                 tl_free(args);
             }
             curr = curr->next;

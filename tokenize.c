@@ -220,7 +220,6 @@ int tokenize(const char *expr, size_t expr_len, token_list_t *tokens) {
                             tl_free(f.args[i]);
                     return (err & EMASK) != ERR_SYNTAX ? err : SYNTAX_ERROR((err << ESHIFT) + (signed) ix + 1);
                 }
-                printf("should be %d\n", f.nargs);
                 // strcpy(f.name, symbol);
                 // uint8_t i;
                 // const char *arg_begin = expr + ix + 1;
@@ -327,7 +326,5 @@ int tokenize(const char *expr, size_t expr_len, token_list_t *tokens) {
 
     if(tokens->size == 0)
         return SYNTAX_ERROR(0);
-    printf("tokenized:\n");
-    tl_print(tokens);
     return 0;
 }
