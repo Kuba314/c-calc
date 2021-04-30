@@ -6,8 +6,6 @@
 #ifndef __TOKEN_H__
 #define __TOKEN_H__
 
-#define MAX_SYM_LENGTH 20
-
 enum token_type_t {
     TT_REAL,
     TT_COMPLEX,
@@ -17,7 +15,8 @@ enum token_type_t {
     TT_EXPRESSION
 };
 
-typedef struct {
+typedef struct token_t token_t;
+struct token_t {
     enum token_type_t type;
     union {
         long double d;
@@ -27,7 +26,7 @@ typedef struct {
         func_t f;
         struct token_list_t *expr;
     } data;
-} token_t;
+};
 
 complex_t mk_complex(long double real, long double imag);
 

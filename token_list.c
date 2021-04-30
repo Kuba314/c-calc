@@ -34,8 +34,9 @@ static void _free_node(token_list_node_t *node) {
     if(node->token.type == TT_EXPRESSION)
         tl_free(node->token.data.expr);
     else if(node->token.type == TT_FUNCTION)
-        for(uint8_t i = 0; i < node->token.data.f.nargs; i++)
-            tl_free(node->token.data.f.args[i]);
+        for(uint8_t i = 0; i < MAX_FUNC_ARGS; i++)
+            if(node->token.data.f.args[i] != NULL)
+                tl_free(node->token.data.f.args[i]);
 
     free(node);
 }
@@ -189,6 +190,7 @@ token_list_node_t *tl_evalop(token_list_t *tl, uint32_t index) {
 // }
 
 token_list_node_t *tl_replace(token_list_t *tl, uint32_t index, token_t token) {
+    printf("[TL] {%p} REPLACE[%d]\n", (void *) tl, index);
 
     token_list_node_t *curr = tl->begin;
     token_list_node_t *last = NULL;
@@ -207,8 +209,11 @@ token_list_node_t *tl_replace(token_list_t *tl, uint32_t index, token_t token) {
     if(node == NULL)
         return NULL;
 
-    node->next = curr;
-    last->next = node;
+    node->next = curr->next;
+    if(last == NULL)
+        tl->begin = node;
+    else
+        last->next = node;
     _free_node(curr);
     return node;
 }
@@ -269,6 +274,7 @@ void tl_print(token_list_t *tl) {
             printf("[%u] Function(%s, %u)\n", i++, t->data.f.name, t->data.f.nargs);
             break;
         case TT_EXPRESSION:
+            printf("EXPRESSION\n");
             tl_print(t->data.expr);
             break;
         }

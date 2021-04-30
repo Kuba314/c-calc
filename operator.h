@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include "op_functions.h"
 
 #ifndef __OPERATOR_H__

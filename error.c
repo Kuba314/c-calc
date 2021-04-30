@@ -30,5 +30,9 @@ void math_perror(int err, const char *err_msg) {
         fprintf(stderr, "couldn't reduce tokens\n");
     } else if(err_type == ERR_MAXSYM) {
         fprintf(stderr, "symbol exceeded max symbol size %d\n", err >> ESHIFT);
+    } else if(err_type == ERR_MAXARGS) {
+        fprintf(stderr, "exceeded max function args %d\n", err >> ESHIFT);
+    } else if(err_type == ERR_NOSYM) {
+        fprintf(stderr, "unknown symbol\n");
     }
 }

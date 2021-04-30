@@ -1,5 +1,7 @@
 #include <math.h>
+#include <stddef.h>
 #include "operator.h"
+#include "complex.h"
 
 
 
@@ -44,24 +46,23 @@ complex_t div_complex(complex_t a, complex_t b) {
 // complex_t sqrt_complex(complex_t a);
 // complex_t root_complex(complex_t a, complex_t b);
 
-
-const static operator_t OPERATORS[] = {
-    (operator_t) {.sym='+', .type=OP_BINARY, .priority=0, .fd.d2=add_real, .fc.c2=add_complex},
-    (operator_t) {.sym='-', .type=OP_BINARY, .priority=0, .fd.d2=sub_real, .fc.c2=sub_complex},
-    (operator_t) {.sym='*', .type=OP_BINARY, .priority=1, .fd.d2=mul_real, .fc.c2=mul_complex},
-    (operator_t) {.sym='/', .type=OP_BINARY, .priority=1, .fd.d2=div_real, .fc.c2=div_complex},
-    (operator_t) {.sym='%', .type=OP_BINARY, .priority=1, .fd.d2=mod_real, .fc.c2=mod_complex},
-    (operator_t) {.sym='^', .type=OP_BINARY, .priority=3, .fd.d2=pow_real, .fc.c2=pow_complex},
-    (operator_t) {.sym='!', .type=OP_RUNARY, .priority=5, .fd.d1=fac_real, .fc.c1=fac_complex},
-    (operator_t) {.sym='+', .type=OP_LUNARY, .priority=2, .fd.d1=nop_real, .fc.c1=nop_complex},
-    (operator_t) {.sym='-', .type=OP_LUNARY, .priority=2, .fd.d1=neg_real, .fc.c1=neg_complex},
-    (operator_t) {.sym='#', .type=OP_LUNARY, .priority=4, .fd.d1=sqrt_real, .fc.c1=sqrt_complex},
-    (operator_t) {.sym='#', .type=OP_BINARY, .priority=4, .fd.d2=root_real, .fc.c2=root_complex},
+static operator_t OPERATORS[11] = {
+    {.sym='+', .type=OP_BINARY, .priority=0, .fd.d2=add_real, .fc.c2=add_complex},
+    {.sym='-', .type=OP_BINARY, .priority=0, .fd.d2=sub_real, .fc.c2=sub_complex},
+    {.sym='*', .type=OP_BINARY, .priority=1, .fd.d2=mul_real, .fc.c2=mul_complex},
+    {.sym='/', .type=OP_BINARY, .priority=1, .fd.d2=div_real, .fc.c2=div_complex},
+    // (operator_t) {.sym='%', .type=OP_BINARY, .priority=1, .fd.d2=mod_real, .fc.c2=mod_complex},
+    // (operator_t) {.sym='^', .type=OP_BINARY, .priority=3, .fd.d2=pow_real, .fc.c2=pow_complex},
+    // (operator_t) {.sym='!', .type=OP_RUNARY, .priority=5, .fd.d1=fac_real, .fc.c1=fac_complex},
+    // (operator_t) {.sym='+', .type=OP_LUNARY, .priority=2, .fd.d1=nop_real, .fc.c1=nop_complex},
+    // (operator_t) {.sym='-', .type=OP_LUNARY, .priority=2, .fd.d1=neg_real, .fc.c1=neg_complex},
+    // (operator_t) {.sym='#', .type=OP_LUNARY, .priority=4, .fd.d1=sqrt_real, .fc.c1=sqrt_complex},
+    // (operator_t) {.sym='#', .type=OP_BINARY, .priority=4, .fd.d2=root_real, .fc.c2=root_complex},
 };
 
 
 operator_t *get_operator(char sym, enum op_type_t type) {
-    for(uint32_t i = 0; i < sizeof(FUNCTIONS) / sizeof(func_t); i++)
+    for(uint32_t i = 0; i < sizeof(OPERATORS) / sizeof(operator_t); i++)
         if(OPERATORS[i].type == type && OPERATORS[i].sym == sym)
             return &OPERATORS[i];
 

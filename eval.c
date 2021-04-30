@@ -29,6 +29,8 @@ int main(int argc, char *argv[]) {
         exit(0);
     }
 
+    // tl_print(tokens);
+
     token_t result;
     error = evaluate_tokenized(tokens, &result);
     if(error) {
