@@ -9,7 +9,7 @@ TARGETS = eval
 all: $(TARGETS)
 
 test: test.o token_list.o error.o
-eval: eval.o token_list.o error.o tokenize.o evaluate.o operator.o op_functions.o function.o complex.o
+eval: eval.o token_list.o error.o tokenize.o evaluate.o operator.o function.o complex.o symbol.o
 
 
 eval.o: eval.c token_list.o
@@ -20,7 +20,7 @@ evaluate.o: evaluate.c evaluate.h
 token_list.o: token_list.c token_list.h token.h error.h
 operator.o: operator.c operator.h
 function.o: function.c function.h
-op_functions.o: op_functions.c op_functions.h
+symbol.o: symbol.c symbol.h
 complex.o: complex.c complex.h
 error.o: error.c error.h
 

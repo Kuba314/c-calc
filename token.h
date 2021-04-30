@@ -1,7 +1,7 @@
-#include <stdint.h>
 #include "operator.h"
 #include "function.h"
 #include "complex.h"
+#include "symbol.h"
 
 #ifndef __TOKEN_H__
 #define __TOKEN_H__
@@ -23,11 +23,9 @@ struct token_t {
         complex_t c;
         operator_t op;
         char sym[MAX_SYM_LENGTH+1];
-        func_t f;
+        function_t f;
         struct token_list_t *expr;
     } data;
 };
-
-complex_t mk_complex(long double real, long double imag);
 
 #endif // __TOKEN_H__

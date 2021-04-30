@@ -2,12 +2,13 @@
 #include <string.h>
 #include <stdbool.h>
 #include <ctype.h>
+
+#include "operator.h"
 #include "token_list.h"
 #include "token.h"
-#include "operator.h"
-#include "function.h"
 #include "error.h"
 
+// tokenizer state enum
 enum state_t {
     AWAITING_LUNARY,
     AWAITING_TOKEN,
@@ -18,24 +19,20 @@ enum state_t {
     AWAITING_BINARY
 };
 
-void prints(const char *s, uint32_t s_len) {
-    printf("s = \"");
-    for(uint32_t i = 0; i < s_len; i++)
-        printf("%c", s[i]);
-    printf("\"\n");
-}
-
 #define MAX_BRACKET_LVL 10
 
+// bracket macros
 #define IS_OPENING_BRACKET(c) (c == '(' || c == '[' || c == '{')
 #define IS_CLOSING_BRACKET(c) (c == ')' || c == ']' || c == '}')
 #define GET_CLOSING_BRACKET(c) (c == '(' ? ')' : c == '[' ? ']' : '}')
 
+// returns true if char can be part of symbol
 static inline bool is_symchar(char c, bool first) {
     if(first && c == '_')
         return true;
     return (!first && c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 }
+// return closing bracket to the bracket on index
 int _find_closing_bracket_index(const char *s, uint32_t index) {
     char brackets[MAX_BRACKET_LVL+1] = {s[index], '\0'};
     uint32_t b_ix = 1;
@@ -59,10 +56,9 @@ int _find_closing_bracket_index(const char *s, uint32_t index) {
     return -2;
 }
 int tokenize(const char *expr, size_t expr_len, token_list_t *tokens);
-int _par_safe_split(const char *s, uint32_t s_len, token_list_t **args, uint8_t *nargs) {
 
-    // printf("splitting params %d\n", s_len);
-    // prints(s, s_len);
+// split arguments in function by ','
+int _par_safe_split(const char *s, uint32_t s_len, token_list_t **args, uint8_t *nargs) {
 
     const char *curr = s;
     uint32_t last_i = 0;
@@ -72,7 +68,6 @@ int _par_safe_split(const char *s, uint32_t s_len, token_list_t **args, uint8_t 
 
         // found splitting char, start new token
         if(s[i] == ',') {
-            // printf("found , on %d\n", i);
             if(++arg_i == MAX_FUNC_ARGS - 1)
                 return MAXARGS_ERROR(MAX_FUNC_ARGS);
 
@@ -80,10 +75,12 @@ int _par_safe_split(const char *s, uint32_t s_len, token_list_t **args, uint8_t 
             if(args[arg_i] == NULL)
                 return ALLOC_ERROR;
 
+            // tokenize 1 arg
             if((err = tokenize(curr, i - last_i, args[arg_i++])))
                 return err;
             last_i = ++i;
         }
+
         // found bracket, skip until closing bracket
         else if(IS_OPENING_BRACKET(s[i])) {
             uint32_t closing = _find_closing_bracket_index(s, i);
@@ -91,29 +88,35 @@ int _par_safe_split(const char *s, uint32_t s_len, token_list_t **args, uint8_t 
         }
     }
 
-    // add last token
+    // init last arg
     args[arg_i] = tl_init();
     if(args[arg_i] == NULL)
         return ALLOC_ERROR;
 
+    // tokenize last arg
     if((err = tokenize(curr, s_len - last_i, args[arg_i])))
         return err;
+
+    // set n args
     *nargs = arg_i + 1;
     return 0;
 }
 
+// functions that make tokens
 static inline token_t mk_treal(long double real) {
     return (token_t) {.type = TT_REAL, .data.d = real};
 }
 static inline token_t mk_tcomplex(long double real, long double imag) {
     return (token_t) {.type = TT_COMPLEX, .data.c = (complex_t) {.real = real, .imag = imag}};
 }
-static inline token_t mk_tsymbol(const char *sym) {
+static inline token_t mk_tsymbol(const char *sym, uint32_t length) {
     token_t ret = {.type = TT_SYMBOL};
-    strcpy(ret.data.sym, sym);
+    strncpy(ret.data.sym, sym, length);
+    ret.data.sym[length] = '\0';
     return ret;
 }
 
+// function that adds a decimal digit on a certain decimal index
 static inline long double add_decimal_digit(long double decimal, char digit, uint8_t nth_decimal) {
     long double new_decimal = digit - '0';
     for(uint8_t i = 0; i < nth_decimal; i++)
@@ -121,15 +124,16 @@ static inline long double add_decimal_digit(long double decimal, char digit, uin
     return decimal + new_decimal;
 }
 
+
 int tokenize(const char *expr, size_t expr_len, token_list_t *tokens) {
 
-    // prints(expr, expr_len);
-
+    // state control variables
     enum state_t state = AWAITING_LUNARY;
     unsigned long ix = 0;
     bool need_more = false;
     char c;
 
+    // accumulating data
     char symbol[MAX_SYM_LENGTH+1];
     uint32_t sym_ix = 0;
     long long number;
@@ -172,18 +176,23 @@ int tokenize(const char *expr, size_t expr_len, token_list_t *tokens) {
 
         // waiting for any token
         if(state == AWAITING_TOKEN) {
+
+            // if symbol starts
             if(is_symchar(c, true)) {
                 if(sym_ix == MAX_SYM_LENGTH)
                     return MAXSYM_ERROR(MAX_SYM_LENGTH);
 
                 symbol[sym_ix++] = tolower(c);
                 state = READING_SYMBOL;
+
+            // else if nested expression starts
             } else if(IS_OPENING_BRACKET(c)) {
                 int closing_ix = _find_closing_bracket_index(expr, ix);
                 token_list_t *new_expr = tl_init();
                 if(new_expr == NULL)
                     return ALLOC_ERROR;
 
+                // recursively tokenize nested expression
                 if((err = tokenize(expr + ix + 1, closing_ix - ix - 1, new_expr))) {
                     tl_free(new_expr);
                     return (err & EMASK) != ERR_SYNTAX ? err : SYNTAX_ERROR((err << ESHIFT) + (signed) ix + 1);
@@ -191,90 +200,76 @@ int tokenize(const char *expr, size_t expr_len, token_list_t *tokens) {
                 tl_append(tokens, (token_t) {.type = TT_EXPRESSION, .data.expr = new_expr});
                 ix = closing_ix;
                 state = AWAITING_RUNARY;
+
+            // else if number starts
             } else if(isdigit(c)) {
                 number = c - '0';
                 state = READING_NUMBER;
+
+            // else if decimal starts
             } else if(c == '.') {
                 number = 0LL;
                 decimal = 0.F;
                 nth_decimal = 1;
                 state = READING_NUMBER_DECIMAL;
+
             } else {
                 return SYNTAX_ERROR(ix);
             }
         }
         // reading symbol or function
         else if(state == READING_SYMBOL) {
+            // if symbol continues...
             if(is_symchar(c, false)) {
                 if(sym_ix == MAX_SYM_LENGTH)
                     return MAXSYM_ERROR(MAX_SYM_LENGTH);
                 symbol[sym_ix++] = tolower(c);
+            // if '('' found (function)
             } else if(c == '(') {
                 int closing_ix = _find_closing_bracket_index(expr, ix);
-                func_t f = (func_t) {.args = {NULL}};
+                function_t f = (function_t) {.args = {NULL}};
                 strncpy(f.name, symbol, sym_ix);
                 f.name[sym_ix] = '\0';
+                sym_ix = 0;
+
+                // tokenize function arguments
                 if((err = _par_safe_split(expr + ix + 1, closing_ix - ix - 1, f.args, &f.nargs))) {
                     for(uint8_t i = 0; i < MAX_FUNC_ARGS; i++)
                         if(f.args[i] != NULL)
                             tl_free(f.args[i]);
                     return (err & EMASK) != ERR_SYNTAX ? err : SYNTAX_ERROR((err << ESHIFT) + (signed) ix + 1);
                 }
-                // strcpy(f.name, symbol);
-                // uint8_t i;
-                // const char *arg_begin = expr + ix + 1;
-                // uint32_t arg_length;
-                // for(i = 0; i < MAX_FUNC_ARGS; i++) {
-                //     f.args[i] = tl_init();
-                //     if(f.args[i] == NULL) {
-                //         for(uint32_t j = 0; j < i; j++)
-                //             tl_free(f.args[j]);
-                //         return ALLOC_ERROR;
-                //     }
-                //     bool last = _find_next_param(arg_begin, closing_ix - (arg_begin - s), &arg_length);
-                //     if((err = tokenize(arg_begin, arg_length, fl.args[i]))) {
-                //         for(uint32_t j = 0; j < i; j++)
-                //             tl_free(f.args[j]);
-                //         return err_type != ERR_SYNTAX ? err : SYNTAX_ERROR(err << ESHIFT + ix + 1);
-                //     }
-                //     arg_begin += arg_length;
-
-                //     if(last)
-                //         break;
-                // }
-                // if(i == MAX_FUNC_ARGS)
-                //     return MAXARGS_ERROR(MAX_FUNC_ARGS);
 
                 tl_append(tokens, (token_t) {.type = TT_FUNCTION, .data.f = f});
                 ix = closing_ix;
                 state = AWAITING_RUNARY;
-                // try:
-                //     arguments = _par_safe_split(expr[ix + 1:closing_ix], ',')
-                //     tokens += [(symbol, tuple(tokenize(part) for part in arguments if part))]
-                // except EvalSyntaxError as e:
-                //     raise EvalSyntaxError(ix + e.char_ix + 1)
-                // ix = closing_ix
-                // state = AWAITING_RUNARY
+
+            // symbol ended, maybe there's a right unary operator next
             } else {
-                tl_append(tokens, mk_tsymbol(symbol));
+                tl_append(tokens, mk_tsymbol(symbol, sym_ix));
+                sym_ix = 0;
                 state = AWAITING_RUNARY;
                 continue;    // do not advance ix
             }
         }
         // reading whole number part
         else if(state == READING_NUMBER) {
+            // if number continues
             if(isdigit(c)) {
                 number = number * 10 + c - '0';
+            // if whole number just changed to decimal
             } else if(c == '.') {
                 decimal = 0.F;
                 nth_decimal = 1;
                 state = READING_NUMBER_DECIMAL;
+            // if symbol right after number (example: 3x)
             } else if(c == '_' || isalpha(c)) {
                 tl_append(tokens, mk_treal(number));
                 tl_append(tokens, (token_t) {.type = TT_OPERATOR, .data.op = *get_operator('*', OP_BINARY)});
                 symbol[0] = c;
                 sym_ix = 1;
                 state = READING_SYMBOL;
+            // number ended, maybe there's a right unary operator next
             } else {
                 tl_append(tokens, mk_treal(number));
                 state = AWAITING_RUNARY;
@@ -283,14 +278,17 @@ int tokenize(const char *expr, size_t expr_len, token_list_t *tokens) {
         }
         // reading decimal number part
         else if(state == READING_NUMBER_DECIMAL) {
+            // if decimal number continues
             if(isdigit(c)) {
                 decimal = add_decimal_digit(decimal, c, nth_decimal++);
+            // if symbol right after decimal (example: 3.1x)
             } else if(c == '_' || isalpha(c)) {
                 tl_append(tokens, mk_treal(number + decimal));
                 tl_append(tokens, (token_t) {.type = TT_OPERATOR, .data.op = *get_operator('*', OP_BINARY)});
                 symbol[0] = c;
                 sym_ix = 1;
                 state = READING_SYMBOL;
+            // number ended, maybe there's a right unary operator next
             } else {
                 state = AWAITING_RUNARY;
                 tl_append(tokens, mk_treal(number + decimal));
@@ -300,6 +298,8 @@ int tokenize(const char *expr, size_t expr_len, token_list_t *tokens) {
         // waiting for a binary operator
         else if(state == AWAITING_BINARY) {
             operator_t *op = get_operator(c, OP_BINARY);
+
+            // if operator exists
             if(op != NULL) {
                 tl_append(tokens, (token_t) {.type = TT_OPERATOR, .data.op = *op});
                 state = AWAITING_LUNARY;
@@ -308,6 +308,8 @@ int tokenize(const char *expr, size_t expr_len, token_list_t *tokens) {
                 return SYNTAX_ERROR(ix);
             }
         }
+
+        // move onto next char
         ix++;
     }
 
@@ -317,14 +319,16 @@ int tokenize(const char *expr, size_t expr_len, token_list_t *tokens) {
 
     // add last token depending on current state
     if(state == READING_SYMBOL) {
-        tl_append(tokens, mk_tsymbol(symbol));
+        tl_append(tokens, mk_tsymbol(symbol, sym_ix));
     } else if(state == READING_NUMBER) {
         tl_append(tokens, mk_treal(number));
     } else if(state == READING_NUMBER_DECIMAL) {
         tl_append(tokens, mk_treal(number + decimal));
     }
 
+    // if no tokens were found (all spaces)
     if(tokens->size == 0)
         return SYNTAX_ERROR(0);
+
     return 0;
 }

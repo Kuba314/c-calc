@@ -33,6 +33,8 @@ void math_perror(int err, const char *err_msg) {
     } else if(err_type == ERR_MAXARGS) {
         fprintf(stderr, "exceeded max function args %d\n", err >> ESHIFT);
     } else if(err_type == ERR_NOSYM) {
-        fprintf(stderr, "unknown symbol\n");
+        fprintf(stderr, "undefined symbol\n");
+    } else if(err_type == ERR_NOFUNC) {
+        fprintf(stderr, "undefined function\n");
     }
 }

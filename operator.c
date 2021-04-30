@@ -46,7 +46,7 @@ complex_t div_complex(complex_t a, complex_t b) {
 // complex_t sqrt_complex(complex_t a);
 // complex_t root_complex(complex_t a, complex_t b);
 
-static operator_t OPERATORS[11] = {
+static operator_t OPERATORS[] = {
     {.sym='+', .type=OP_BINARY, .priority=0, .fd.d2=add_real, .fc.c2=add_complex},
     {.sym='-', .type=OP_BINARY, .priority=0, .fd.d2=sub_real, .fc.c2=sub_complex},
     {.sym='*', .type=OP_BINARY, .priority=1, .fd.d2=mul_real, .fc.c2=mul_complex},

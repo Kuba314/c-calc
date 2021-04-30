@@ -3,11 +3,8 @@
 #ifndef __SYMBOL_H__
 #define __SYMBOL_H__
 
-#define MAX_SYM_LENGTH 10
+#define MAX_SYM_LENGTH 20
 
-typedef struct {
-    char sym[MAX_SYM_LENGTH];
-    uint32_t length;
-} sym_t;
+struct token_t *get_symbol(const char *sym);
 
 #endif // __SYMBOL_H__

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include "token_list.h"
 #include "token.h"
@@ -60,6 +61,7 @@ token_list_node_t *tl_append(token_list_t *tl, token_t token) {
     return node;
 }
 
+// evaluate operator at index
 token_list_node_t *tl_evalop(token_list_t *tl, uint32_t index) {
 
     token_list_node_t *first = tl->begin;
@@ -84,11 +86,14 @@ token_list_node_t *tl_evalop(token_list_t *tl, uint32_t index) {
     if((index == 0 && op.type != OP_LUNARY) || (index == tl->size-1 && op.type != OP_RUNARY))
         return NULL;
 
+    // init result node
     token_list_node_t *new_node = _init_empty_node();
     if(new_node == NULL)
         return NULL;
 
     token_t *new_token = &new_node->token;
+
+    // if left unary
     if(op.type == OP_LUNARY) {
         if(first->next->token.type == TT_REAL) {
             new_token->type = TT_REAL;
@@ -97,6 +102,7 @@ token_list_node_t *tl_evalop(token_list_t *tl, uint32_t index) {
             new_token->type = TT_COMPLEX;
             new_token->data.c = op.fc.c1(first->next->token.data.c);
         }
+
         _free_node(first);
         _free_node(first->next);
         if(last == NULL)
@@ -104,6 +110,8 @@ token_list_node_t *tl_evalop(token_list_t *tl, uint32_t index) {
         else
             last->next = new_node;
         new_node->next = first->next->next;
+
+    // if right unary
     } else if(op.type == OP_RUNARY) {
         if(last->token.type == TT_REAL) {
             new_token->type = TT_REAL;
@@ -112,6 +120,7 @@ token_list_node_t *tl_evalop(token_list_t *tl, uint32_t index) {
             new_token->type = TT_COMPLEX;
             new_token->data.c = op.fc.c1(last->token.data.c);
         }
+
         _free_node(last);
         _free_node(first);
         if(last2 == NULL)
@@ -119,19 +128,22 @@ token_list_node_t *tl_evalop(token_list_t *tl, uint32_t index) {
         else
             last2->next = new_node;
         new_node->next = first->next;
+
+    // if binary
     } else {
         token_t *left_token = &last->token;
         token_t *right_token = &first->next->token;
         enum token_type_t tt = TT_REAL;
+
+        // convert TT_REAL to TT_COMPLEX if one argument is TT_COMPLEX
         if(left_token->type == TT_COMPLEX && right_token->type == TT_REAL) {
             tt = TT_COMPLEX;
             right_token->data.c = mk_complex(right_token->data.d, 0.0F);
-            // right_token->type == TT_COMPLEX;
         } else if(left_token->type == TT_REAL && right_token->type == TT_COMPLEX) {
             tt = TT_COMPLEX;
             left_token->data.c = mk_complex(left_token->data.d, 0.0F);
-            // left_token->type == TT_COMPLEX;
         }
+
         if(tt == TT_REAL) {
             new_token->type = TT_REAL;
             new_token->data.d = op.fd.d2(left_token->data.d, right_token->data.d);
@@ -151,43 +163,6 @@ token_list_node_t *tl_evalop(token_list_t *tl, uint32_t index) {
     tl->size -= 1 + (op.type == OP_BINARY);
     return new_node;
 }
-
-// token_list_node_t *tl_squash(token_list_t *tl, uint32_t from, uint32_t to, token_t token) {
-//     if(from >= to)
-//         return NULL;
-
-//     token_list_node_t *first = tl->begin;
-//     token_list_node_t *last = NULL;
-
-//     if(first == NULL)
-//         return NULL;
-
-//     for(uint32_t i = 0; i < from; i++) {
-//         last = first;
-//         if((first = first->next) == NULL)
-//             return NULL;
-//     }
-
-//     token_list_node_t *tmp;
-//     for(uint32_t i = from; i < to; i++) {
-//         tmp = first->next;
-//         _free_node(first);
-//         first = tmp;
-//     }
-
-//     token_list_node_t *node = _init_node(token);
-//     if(node == NULL)
-//         return NULL;
-
-//     node->next = first;
-
-//     if(last == NULL)
-//         tl->begin = node;
-//     else
-//         last->next = node;
-//     tl->size -= to - from - 1;
-//     return node;
-// }
 
 token_list_node_t *tl_replace(token_list_t *tl, uint32_t index, token_t token) {
 
@@ -217,32 +192,7 @@ token_list_node_t *tl_replace(token_list_t *tl, uint32_t index, token_t token) {
     return node;
 }
 
-bool tl_remove(token_list_t *tl, uint32_t index) {
-
-    if(tl->begin == NULL)
-        return false;
-
-    token_list_node_t *curr = tl->begin;
-    token_list_node_t *last = NULL;
-
-    while(index--) {
-        if(curr->next == NULL)
-            return false;
-
-        last = curr;
-        curr = curr->next;
-    }
-
-    if(last == NULL)
-        tl->begin = curr->next;
-    else
-        last->next = curr->next;
-
-    _free_node(curr);
-    tl->size--;
-    return true;
-}
-
+// print tokenlist
 void tl_print(token_list_t *tl) {
     token_list_node_t *curr = tl->begin;
 

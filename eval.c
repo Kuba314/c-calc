@@ -13,15 +13,18 @@
 
 int main(int argc, char *argv[]) {
 
+    // check args
     if(argc != 2)
         fatal("Usage: %s expression", argv[0]);
 
     fprintf(stderr, "Evaluating: '%s'\n", argv[1]);
 
+    // init tokens
     token_list_t *tokens = tl_init();
     if(tokens == NULL)
         fatal("Couldn't allocate tokenlist\n");
 
+    // tokenize
     int error = tokenize(argv[1], strlen(argv[1]), tokens);
     if(error) {
         tl_free(tokens);
@@ -29,8 +32,7 @@ int main(int argc, char *argv[]) {
         exit(0);
     }
 
-    // tl_print(tokens);
-
+    // evaluate
     token_t result;
     error = evaluate_tokenized(tokens, &result);
     if(error) {
@@ -42,6 +44,7 @@ int main(int argc, char *argv[]) {
     }
     tl_free(tokens);
 
+    // print result
     if(result.type == TT_REAL) {
         printf("result = %Lf\n", result.data.d);
     } else if(result.type == TT_COMPLEX) {
@@ -49,5 +52,6 @@ int main(int argc, char *argv[]) {
     } else {
         fatal("Mathlib returned nan result: %d\n", result.type);
     }
+
     return 0;
 }

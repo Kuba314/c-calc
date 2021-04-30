@@ -1,5 +1,4 @@
 #include <stdint.h>
-#include <stdbool.h>
 #include "token.h"
 
 #ifndef __TOKEN_LIST_H__
@@ -22,7 +21,6 @@ struct token_list_t {
 token_list_t *tl_init();
 token_list_node_t *tl_append(token_list_t *tl, token_t token);
 token_list_node_t *tl_replace(token_list_t *tl, uint32_t index, token_t token);
-bool tl_remove(token_list_t *tl, uint32_t index);
 void tl_print(token_list_t *tl);
 void tl_free(token_list_t *tl);
 

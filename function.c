@@ -1,12 +1,10 @@
-#include <stdio.h>
 #include <math.h>
-#include <stddef.h>
 #include <string.h>
+
 #include "function.h"
 #include "token_list.h"
 #include "token.h"
 
-// typedef struct token_t token_t;
 
 token_t f_sqrt(struct token_list_t *args) {
     token_t *arg = &args->begin->token;
@@ -42,7 +40,7 @@ static struct func_def FUNCTIONS[] = {
     // ((func_t) {.name=(sym_t) {.sym="", .length=0}, .nargs=0});
 };
 
-common_func_t *get_func(const char *fname) {
+common_func_t *get_function(const char *fname) {
     for(uint32_t i = 0; i < sizeof(FUNCTIONS) / sizeof(FUNCTIONS[0]); i++) {
         if(strcmp(FUNCTIONS[i].name, fname) == 0)
             return FUNCTIONS[i].f;
