@@ -1,2 +1,4 @@
 *.o
 .gdb_history
+eval
+test
