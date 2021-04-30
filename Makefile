@@ -2,11 +2,11 @@ CC = gcc
 CFLAGS = -Werror -Wall -Wextra -pedantic -std=c99
 LDLIBS = -lm
 
-TARGETS = test
+TARGETS = test eval
 
 .PHONY: all clean
 
-all: test eval
+all: $(TARGETS)
 
 test: test.o token.o token_list.o error.o
 eval: eval.o token.o token_list.o error.o tokenize.o evaluate.o
