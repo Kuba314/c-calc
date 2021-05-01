@@ -1,7 +1,7 @@
 #include <math.h>
 #include <stddef.h>
 #include "operator.h"
-#include "complex.h"
+// #include "complex.h"
 
 
 
@@ -25,18 +25,17 @@ long double div_real(long double a, long double b) {
 // long double sqrt_real(long double a);
 // long double root_real(long double a, long double b);
 
-complex_t add_complex(complex_t a, complex_t b) {
-    return mk_complex(a.real + b.real, a.imag + b.imag);
+long double complex add_complex(long double complex a, long double complex b) {
+    return a + b;
 }
-complex_t sub_complex(complex_t a, complex_t b) {
-    return mk_complex(a.real - b.real, a.imag - b.imag);
+long double complex sub_complex(long double complex a, long double complex b) {
+    return a - b;
 }
-complex_t mul_complex(complex_t a, complex_t b) {
-    return mk_complex(a.real*b.real - a.imag*b.imag, a.imag*b.real + a.real*b.imag);
+long double complex mul_complex(long double complex a, long double complex b) {
+    return a * b;
 }
-complex_t div_complex(complex_t a, complex_t b) {
-    register long double denom = b.real*b.real + b.imag*b.imag;
-    return mk_complex((a.real*b.real + a.imag*b.imag) / denom, (a.imag*b.real - a.real*b.imag) / denom);
+long double complex div_complex(long double complex a, long double complex b) {
+    return a / b;
 }
 // complex_t mod_complex(complex_t a, complex_t b);
 // complex_t pow_complex(complex_t a, complex_t b);

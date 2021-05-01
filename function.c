@@ -1,5 +1,6 @@
 #include <math.h>
 #include <string.h>
+#include <complex.h>
 
 #include "function.h"
 #include "token_list.h"
@@ -11,14 +12,14 @@ token_t f_sqrt(struct token_list_t *args) {
     if(arg->type == TT_REAL)
         return (token_t) {.type = TT_REAL, .data.d = sqrtl(arg->data.d)};
     else
-        return (token_t) {.type = TT_COMPLEX, .data.c = arg->data.c};
+        return (token_t) {.type = TT_COMPLEX, .data.c = csqrtl(arg->data.c)};
 }
 token_t f_abs(struct token_list_t *args) {
     token_t *arg = &args->begin->token;
     if(arg->type == TT_REAL)
         return (token_t) {.type = TT_REAL, .data.d = fabsl(arg->data.d)};
     else
-        return (token_t) {.type = TT_REAL, .data.d = sqrtl(arg->data.c.real*arg->data.c.real + arg->data.c.imag*arg->data.c.imag)};
+        return (token_t) {.type = TT_REAL, .data.d = cabsl(arg->data.c)};
 }
 
 struct func_def {

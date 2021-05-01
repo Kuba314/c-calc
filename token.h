@@ -1,6 +1,6 @@
+#include <complex.h>
 #include "operator.h"
 #include "function.h"
-#include "complex.h"
 #include "symbol.h"
 
 #ifndef __TOKEN_H__
@@ -20,7 +20,7 @@ struct token_t {
     enum token_type_t type;
     union {
         long double d;
-        complex_t c;
+        long double complex c;
         operator_t op;
         char sym[MAX_SYM_LENGTH+1];
         function_t f;

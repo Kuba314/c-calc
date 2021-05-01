@@ -138,10 +138,10 @@ token_list_node_t *tl_evalop(token_list_t *tl, uint32_t index) {
         // convert TT_REAL to TT_COMPLEX if one argument is TT_COMPLEX
         if(left_token->type == TT_COMPLEX && right_token->type == TT_REAL) {
             tt = TT_COMPLEX;
-            right_token->data.c = mk_complex(right_token->data.d, 0.0F);
+            right_token->data.c = right_token->data.d;
         } else if(left_token->type == TT_REAL && right_token->type == TT_COMPLEX) {
             tt = TT_COMPLEX;
-            left_token->data.c = mk_complex(left_token->data.d, 0.0F);
+            left_token->data.c = left_token->data.d;
         }
 
         if(tt == TT_REAL) {
@@ -212,7 +212,7 @@ void tl_print(token_list_t *tl) {
             printf("[%u] Real(%.02Lf)", i++, t->data.d);
             break;
         case TT_COMPLEX:
-            printf("[%u] Complex(%.02Lf, %.02Lf)", i++, t->data.c.real, t->data.c.imag);
+            printf("[%u] Complex(%.02Lf, %.02Lf)", i++, creall(t->data.c), cimagl(t->data.c));
             break;
         case TT_OPERATOR:
             printf("[%u] Op(%c)", i++, t->data.op.sym);

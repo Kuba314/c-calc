@@ -106,9 +106,6 @@ int _par_safe_split(const char *s, uint32_t s_len, token_list_t **args, uint8_t 
 static inline token_t mk_treal(long double real) {
     return (token_t) {.type = TT_REAL, .data.d = real};
 }
-static inline token_t mk_tcomplex(long double real, long double imag) {
-    return (token_t) {.type = TT_COMPLEX, .data.c = (complex_t) {.real = real, .imag = imag}};
-}
 static inline token_t mk_tsymbol(const char *sym, uint32_t length) {
     token_t ret = {.type = TT_SYMBOL};
     strncpy(ret.data.sym, sym, length);

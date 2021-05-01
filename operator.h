@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include "complex.h"
+#include <complex.h>
 
 #ifndef __OPERATOR_H__
 #define __OPERATOR_H__
@@ -17,8 +17,8 @@ typedef struct {
         long double (*d2)(long double, long double);
     } fd;
     union {
-        complex_t (*c1)(complex_t);
-        complex_t (*c2)(complex_t, complex_t);
+        long double complex (*c1)(long double complex a);
+        long double complex (*c2)(long double complex a, long double complex b);
     } fc;
     enum op_type_t type;
     uint8_t priority;
