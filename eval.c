@@ -11,7 +11,25 @@
 #include "error.h"
 #include "complex.h"
 
+void replace_smaller(char *string, const char *seq, const char *new_seq) {
+    size_t len = strlen(seq);
+    size_t new_len = strlen(new_seq);
+    size_t delta = len - new_len;
+    if(new_len > len)
+        return;
 
+    size_t shift = 0;
+    do {
+        if(strncmp(string, seq, len) == 0) {
+            strncpy(string, new_seq, new_len);
+            shift += delta;
+            string += delta;
+        } else if(shift) {
+            string[-shift] = string[0];
+        }
+    } while(*++string);
+    string[-shift] = '\0';
+}
 
 int main(int argc, char *argv[]) {
 
@@ -20,6 +38,9 @@ int main(int argc, char *argv[]) {
         fatal("Usage: %s expression", argv[0]);
 
     fprintf(stderr, "Evaluating: '%s'\n", argv[1]);
+
+    // replace √ (3 bytes) with # (1 byte) for easier calculations
+    replace_smaller(argv[1], "√", "#");
 
     // init tokens
     token_list_t *tokens = tl_init();

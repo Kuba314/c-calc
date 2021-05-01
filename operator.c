@@ -13,7 +13,7 @@ long double pow_real(long double a, long double b) { return powl(a, b); }
 long double fac_real(long double a) { return tgammal(a + 1); }
 long double nop_real(long double a) {return a; }
 long double neg_real(long double a) {return -a; }
-long double root_real(long double a, long double b) { return powl(a, 1 / b); }
+long double root_real(long double a, long double b) { return powl(b, 1 / a); }
 
 complex_t add_complex(complex_t a, complex_t b) { return a + b; }
 complex_t sub_complex(complex_t a, complex_t b) { return a - b; }
@@ -21,7 +21,7 @@ complex_t mul_complex(complex_t a, complex_t b) { return a * b; }
 complex_t div_complex(complex_t a, complex_t b) { return a / b; }
 complex_t nop_complex(complex_t a) { return a; }
 complex_t neg_complex(complex_t a) { return -a; }
-complex_t root_complex(complex_t a, complex_t b) { return cpowl(a, 1 / b); }
+complex_t root_complex(complex_t a, complex_t b) { return cpowl(b, 1 / a); }
 
 static operator_t OPERATORS[] = {
     {.sym='+', .type=OP_BINARY, .priority=0, .fd.d2=add_real, .fc.c2=add_complex},
