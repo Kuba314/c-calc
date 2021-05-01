@@ -1,7 +1,9 @@
 #include <stddef.h>
 #include <string.h>
+
+#include "complex.h"
+#include "symbol.h"
 #include "token.h"
-// #include "complex.h"
 
 
 enum sym_type_t {
@@ -18,6 +20,7 @@ struct sym_def_t {
 static struct sym_def_t SYMBOLS[] = {
     {.sym = "pi", .token = {.type = TT_REAL, .data.d = 3.14159265358979323846264F}},
     {.sym = "e",  .token = {.type = TT_REAL, .data.d = 2.718281828459045F}},
+    {.sym = "i",  .token = {.type = TT_COMPLEX, .data.c = I}},
 };
 
 token_t *get_symbol(const char *sym) {

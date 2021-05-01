@@ -22,7 +22,9 @@ void math_perror(int err, const char *err_msg) {
 
     fprintf(stderr, "%s: ", err_msg);
 
-    if(err_type == ERR_ALLOC) {
+    if(err_type == ERROR) {
+        fprintf(stderr, "unknown error\n");
+    } else if(err_type == ERR_ALLOC) {
         fprintf(stderr, "not enough memory\n");
     } else if(err_type == ERR_SYNTAX) {
         fprintf(stderr, "syntax error at index %d\n", err >> ESHIFT);
@@ -36,5 +38,7 @@ void math_perror(int err, const char *err_msg) {
         fprintf(stderr, "undefined symbol\n");
     } else if(err_type == ERR_NOFUNC) {
         fprintf(stderr, "undefined function\n");
+    } else if(err_type == ERR_OP) {
+        fprintf(stderr, "invalid operator for operands (%d)\n", err >> ESHIFT);
     }
 }

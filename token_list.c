@@ -62,7 +62,7 @@ token_list_node_t *tl_append(token_list_t *tl, token_t token) {
 }
 
 // evaluate operator at index
-token_list_node_t *tl_evalop(token_list_t *tl, uint32_t index) {
+token_list_node_t *tl_evalop(token_list_t *tl, uint32_t index, int *error) {
 
     token_list_node_t *first = tl->begin;
     token_list_node_t *last = NULL;
@@ -97,37 +97,53 @@ token_list_node_t *tl_evalop(token_list_t *tl, uint32_t index) {
     if(op.type == OP_LUNARY) {
         if(first->next->token.type == TT_REAL) {
             new_token->type = TT_REAL;
+            if(op.fd.d1 == NULL) {
+                *error = 1;
+                return NULL;
+            }
             new_token->data.d = op.fd.d1(first->next->token.data.d);
         } else {
             new_token->type = TT_COMPLEX;
+            if(op.fc.c1 == NULL) {
+                *error = 1;
+                return NULL;
+            }
             new_token->data.c = op.fc.c1(first->next->token.data.c);
         }
 
-        _free_node(first);
-        _free_node(first->next);
         if(last == NULL)
             tl->begin = new_node;
         else
             last->next = new_node;
         new_node->next = first->next->next;
+        _free_node(first->next);
+        _free_node(first);
 
     // if right unary
     } else if(op.type == OP_RUNARY) {
         if(last->token.type == TT_REAL) {
             new_token->type = TT_REAL;
+            if(op.fd.d1 == NULL) {
+                *error = 1;
+                return NULL;
+            }
             new_token->data.d = op.fd.d1(last->token.data.d);
         } else {
             new_token->type = TT_COMPLEX;
+            if(op.fc.c1 == NULL) {
+                *error = 1;
+                return NULL;
+            }
             new_token->data.c = op.fc.c1(last->token.data.c);
         }
 
-        _free_node(last);
-        _free_node(first);
         if(last2 == NULL)
             tl->begin = new_node;
         else
             last2->next = new_node;
         new_node->next = first->next;
+        _free_node(last);
+        _free_node(first);
 
     // if binary
     } else {
@@ -146,9 +162,17 @@ token_list_node_t *tl_evalop(token_list_t *tl, uint32_t index) {
 
         if(tt == TT_REAL) {
             new_token->type = TT_REAL;
+            if(op.fd.d2 == NULL) {
+                *error = 1;
+                return NULL;
+            }
             new_token->data.d = op.fd.d2(left_token->data.d, right_token->data.d);
         } else {
             new_token->type = TT_COMPLEX;
+            if(op.fc.c2 == NULL) {
+                *error = 1;
+                return NULL;
+            }
             new_token->data.c = op.fc.c2(left_token->data.c, right_token->data.c);
         }
         new_node->next = first->next->next;
@@ -161,6 +185,7 @@ token_list_node_t *tl_evalop(token_list_t *tl, uint32_t index) {
             last2->next = new_node;
     }
     tl->size -= 1 + (op.type == OP_BINARY);
+    *error = 0;
     return new_node;
 }
 

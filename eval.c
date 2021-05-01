@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "tokenize.h"
 #include "evaluate.h"
@@ -8,6 +9,7 @@
 #include "token_list.h"
 #include "token.h"
 #include "error.h"
+#include "complex.h"
 
 
 
@@ -48,7 +50,7 @@ int main(int argc, char *argv[]) {
     if(result.type == TT_REAL) {
         printf("result = %Lf\n", result.data.d);
     } else if(result.type == TT_COMPLEX) {
-        printf("result = %Lf %c %Lfi\n", creall(result.data.c), (cimagl(result.data.c) < 0) ? '-' : '+', cimagl(result.data.c));
+        printf("result = %Lf %c %Lfi\n", creall(result.data.c), (cimagl(result.data.c) < 0) ? '-' : '+', fabsl(cimagl(result.data.c)));
     } else {
         fatal("Mathlib returned nan result: %d\n", result.type);
     }

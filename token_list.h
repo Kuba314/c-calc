@@ -24,6 +24,6 @@ token_list_node_t *tl_replace(token_list_t *tl, uint32_t index, token_t token);
 void tl_print(token_list_t *tl);
 void tl_free(token_list_t *tl);
 
-token_list_node_t *tl_evalop(token_list_t *tl, uint32_t index);
+token_list_node_t *tl_evalop(token_list_t *tl, uint32_t index, int *error);
 
 #endif // __TOKEN_LIST_H__
