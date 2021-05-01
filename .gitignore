@@ -1,2 +1,6 @@
 *.o
 eval
+calculator
+libmath.a
+libmath.so
+.gdb_history

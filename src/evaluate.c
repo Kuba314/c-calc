@@ -13,6 +13,7 @@ int evaluate_tokenized(token_list_t *tokens, token_t *token) {
 
         uint32_t index = 0;
         token_list_node_t *curr = tokens->begin;
+        token_list_node_t *tmp;
 
         token_t ev_expr;
         int err;
@@ -23,9 +24,10 @@ int evaluate_tokenized(token_list_t *tokens, token_t *token) {
             // if operator and correct priority level, evaluate it
             if(curr->token.type == TT_OPERATOR && curr->token.data.op.priority == pr) {
                 bool binary = curr->token.data.op.type == OP_BINARY;
-                curr = tl_evalop(tokens, index, &err);
+                tmp = tl_evalop(tokens, index, &err);
                 if(err)
                     return OP_ERROR(curr->token.data.op.sym);
+                curr = tmp;
                 if(binary)
                     index--;
 

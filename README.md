@@ -5,7 +5,7 @@ We made a calculator in python with PyQt5 and Pyinstaller, but the result was a 
 I wanted to make something more lightweight.
 
 ## Disclaimer
-I will add UI eventually. Meanwhile enjoy this console version :)
+I will add better UI eventually. Meanwhile enjoy this console version, and this bad UI :)
 Oh, and it's not tested at all. I'd gladly appreciate you telling me if you find an error.
 
 ## Compilation
@@ -28,3 +28,6 @@ make
 * complex numbers (`1 - 2i`)
 * symbols (`pi`, `e`, `i` (imaginary number))
 * functions, although only `sqrt` and `abs` have been implemented so far
+
+## Prerequisities
+* gtk3 (only for the UI program)

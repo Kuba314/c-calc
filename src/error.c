@@ -39,6 +39,6 @@ void math_perror(int err, const char *err_msg) {
     } else if(err_type == ERR_NOFUNC) {
         fprintf(stderr, "undefined function\n");
     } else if(err_type == ERR_OP) {
-        fprintf(stderr, "invalid operator for operands (%d)\n", err >> ESHIFT);
+        fprintf(stderr, "invalid operator(%c) for operands\n", err >> ESHIFT);
     }
 }
