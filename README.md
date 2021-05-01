@@ -31,3 +31,6 @@ make
 
 ## Prerequisities
 * gtk3 (only for the UI program)
+
+## Screenshot
+![Calculator screenshot](image/screenshot.png)
