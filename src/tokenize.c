@@ -64,11 +64,15 @@ int _par_safe_split(const char *s, uint32_t s_len, token_list_t **args, uint8_t 
     uint32_t last_i = 0;
     int arg_i = 0;
     int err;
+    bool something = false;
     for(uint32_t i = 0; i < s_len; i++) {
+
+        if(!something && !isspace(s[i]))
+            something = true;
 
         // found splitting char, start new token
         if(s[i] == ',') {
-            if(++arg_i == MAX_FUNC_ARGS - 1)
+            if(arg_i+1 == MAX_FUNC_ARGS - 1)
                 return MAXARGS_ERROR(MAX_FUNC_ARGS);
 
             args[arg_i] = tl_init();
@@ -78,6 +82,7 @@ int _par_safe_split(const char *s, uint32_t s_len, token_list_t **args, uint8_t 
             // tokenize 1 arg
             if((err = tokenize(curr, i - last_i, args[arg_i++])))
                 return err;
+            curr += i - last_i + 1;
             last_i = ++i;
         }
 
@@ -94,11 +99,11 @@ int _par_safe_split(const char *s, uint32_t s_len, token_list_t **args, uint8_t 
         return ALLOC_ERROR;
 
     // tokenize last arg
-    if((err = tokenize(curr, s_len - last_i, args[arg_i])))
+    if(something && (err = tokenize(curr, s_len - last_i, args[arg_i])))
         return err;
 
     // set n args
-    *nargs = arg_i + 1;
+    *nargs = arg_i + something;
     return 0;
 }
 
