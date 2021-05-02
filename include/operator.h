@@ -13,10 +13,6 @@ enum op_type_t {
 typedef struct {
     char sym;
     union {
-        long double (*d1)(long double);
-        long double (*d2)(long double, long double);
-    } fd;
-    union {
         complex_t (*c1)(complex_t a);
         complex_t (*c2)(complex_t a, complex_t b);
     } fc;

@@ -109,7 +109,7 @@ int _par_safe_split(const char *s, uint32_t s_len, token_list_t **args, uint8_t 
 
 // functions that make tokens
 static inline token_t mk_treal(long double real) {
-    return (token_t) {.type = TT_REAL, .data.d = real};
+    return (token_t) {.type = TT_COMPLEX, .data.c = (complex_t) real};
 }
 static inline token_t mk_tsymbol(const char *sym, uint32_t length) {
     token_t ret = {.type = TT_SYMBOL};

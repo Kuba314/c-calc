@@ -33,7 +33,7 @@ make
     * `sin`, `cos`, `tan`
     * `asin`, `acos`, `atan`
     * `rand` (`0..1`)
-    * `crand` (unit circle vector)
+    * `crand` (random normalized complex number)
 
 ## Prerequisities
 * gtk3 (only for the UI program)

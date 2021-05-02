@@ -6,11 +6,6 @@
 #include "token.h"
 
 
-enum sym_type_t {
-    REAL,
-    COMPLEX
-};
-
 struct sym_def_t {
     char sym[MAX_SYM_LENGTH+1];
     token_t token;
@@ -18,8 +13,8 @@ struct sym_def_t {
 
 
 static struct sym_def_t SYMBOLS[] = {
-    {.sym = "pi", .token = {.type = TT_REAL, .data.d = 3.14159265358979323846264F}},
-    {.sym = "e",  .token = {.type = TT_REAL, .data.d = 2.718281828459045F}},
+    {.sym = "pi", .token = {.type = TT_COMPLEX, .data.c = 3.14159265358979323846264F}},
+    {.sym = "e",  .token = {.type = TT_COMPLEX, .data.c = 2.718281828459045F}},
     {.sym = "i",  .token = {.type = TT_COMPLEX, .data.c = I}},
 };
 

@@ -9,68 +9,37 @@
 #include "symbol.h"
 #include "error.h"
 
-static int call_function(const struct func_def_t *func, const token_list_t *args, uint8_t nargs, enum token_type_t ttype, token_t *result) {
+static int call_function(const struct func_def_t *func, const token_list_t *args, uint8_t nargs, token_t *result) {
 
     const token_list_node_t *curr = args->begin;
 
     // handle missing functions
-    if(ttype == TT_REAL && (
-           (nargs == 0 && func->d0 == NULL)
-        || (nargs == 1 && func->d1 == NULL)
-        || (nargs == 2 && func->d2 == NULL)
-        || (nargs == 3 && func->d3 == NULL)))
-        ttype = TT_COMPLEX;
-    if(ttype == TT_COMPLEX && (
-           (nargs == 0 && func->c0 == NULL)
+    if((nargs == 0 && func->c0 == NULL)
         || (nargs == 1 && func->c1 == NULL)
         || (nargs == 2 && func->c2 == NULL)
-        || (nargs == 3 && func->c3 == NULL)))
+        || (nargs == 3 && func->c3 == NULL))
         return NOFUNC_ERROR;
 
-    if(ttype == TT_REAL) {
-        if(nargs == 0) {
-            *result = (token_t) {.type=TT_REAL, .data.d=func->d0()};
-            return 0;
-        }
-        long double a = curr->token.data.d;
-        curr = curr->next;
-        if(nargs == 1) {
-            *result = (token_t) {.type=TT_REAL, .data.d=func->d1(a)};
-            return 0;
-        }
-        long double b = curr->token.data.d;
-        curr = curr->next;
-        if(nargs == 2) {
-            *result = (token_t) {.type=TT_REAL, .data.d=func->d2(a, b)};
-            return 0;
-        }
-        long double c = curr->token.data.d;
-        if(nargs == 3) {
-            *result = (token_t) {.type=TT_REAL, .data.d=func->d3(a, b, c)};
-            return 0;
-        }
-    } else {
-        if(nargs == 0) {
-            *result = (token_t) {.type=TT_COMPLEX, .data.c=func->c0()};
-            return 0;
-        }
-        complex_t a = curr->token.data.c;
-        curr = curr->next;
-        if(nargs == 1) {
-            *result = (token_t) {.type=TT_COMPLEX, .data.c=func->c1(a)};
-            return 0;
-        }
-        complex_t b = curr->token.data.c;
-        curr = curr->next;
-        if(nargs == 2) {
-            *result = (token_t) {.type=TT_COMPLEX, .data.c=func->c2(a, b)};
-            return 0;
-        }
-        complex_t c = curr->token.data.c;
-        if(nargs == 3) {
-            *result = (token_t) {.type=TT_COMPLEX, .data.c=func->c3(a, b, c)};
-            return 0;
-        }
+    if(nargs == 0) {
+        *result = (token_t) {.type=TT_COMPLEX, .data.c=func->c0()};
+        return 0;
+    }
+    complex_t a = curr->token.data.c;
+    curr = curr->next;
+    if(nargs == 1) {
+        *result = (token_t) {.type=TT_COMPLEX, .data.c=func->c1(a)};
+        return 0;
+    }
+    complex_t b = curr->token.data.c;
+    curr = curr->next;
+    if(nargs == 2) {
+        *result = (token_t) {.type=TT_COMPLEX, .data.c=func->c2(a, b)};
+        return 0;
+    }
+    complex_t c = curr->token.data.c;
+    if(nargs == 3) {
+        *result = (token_t) {.type=TT_COMPLEX, .data.c=func->c3(a, b, c)};
+        return 0;
     }
     return ERROR;
 }
@@ -136,18 +105,15 @@ int evaluate_tokenized(token_list_t *tokens, token_t *token) {
                     return NOFUNC_ERROR;
 
                 // evaluate arguments and load them into argument token list
-                enum token_type_t ttype = TT_REAL;
                 for(uint8_t i = 0; i < func_data->nargs; i++) {
                     if((err = evaluate_tokenized(func_data->args[i], &ev_expr))) {
                         tl_free(args);
                         return err;
                     }
-                    if(ev_expr.type == TT_COMPLEX)
-                        ttype = TT_COMPLEX;
                     tl_append(args, ev_expr);
                 }
 
-                if((err = call_function(f, args, func_data->nargs, ttype, &ev_expr))) {
+                if((err = call_function(f, args, func_data->nargs, &ev_expr))) {
                     tl_free(args);
                     return err;
                 }

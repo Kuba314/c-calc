@@ -26,10 +26,6 @@ struct func_def_t {
     complex_t (*c1)(complex_t);
     complex_t (*c2)(complex_t, complex_t);
     complex_t (*c3)(complex_t, complex_t, complex_t);
-    long double (*d0)();
-    long double (*d1)(long double);
-    long double (*d2)(long double, long double);
-    long double (*d3)(long double, long double, long double);
     uint8_t nargmap;
 };
 

@@ -46,13 +46,7 @@ void recalculate(GtkWidget *hmm, gpointer data) {
     tl_free(tokens);
 
     // print result
-    if(result.type == TT_REAL) {
-        long double res = result.data.d;
-        if(res == (long double) (long long) res)
-            snprintf(result_buf, MAX_RESULT_LENGTH, "%lld\n", (long long) result.data.d);
-        else
-            snprintf(result_buf, MAX_RESULT_LENGTH, "%Lg\n", result.data.d);
-    } else if(result.type == TT_COMPLEX) {
+    if(result.type == TT_COMPLEX) {
         snprintf(result_buf, MAX_RESULT_LENGTH, "%Lf %c %Lfi\n", creall(result.data.c), (cimagl(result.data.c) < 0) ? '-' : '+', fabsl(cimagl(result.data.c)));
     } else {
         snprintf(result_buf, MAX_RESULT_LENGTH, "Mathlib returned nan result: %d\n", result.type);

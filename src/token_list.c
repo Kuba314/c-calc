@@ -92,24 +92,15 @@ token_list_node_t *tl_evalop(token_list_t *tl, uint32_t index, int *error) {
         return NULL;
 
     token_t *new_token = &new_node->token;
+    new_token->type = TT_COMPLEX;
 
     // if left unary
     if(op.type == OP_LUNARY) {
-        if(first->next->token.type == TT_REAL) {
-            new_token->type = TT_REAL;
-            if(op.fd.d1 == NULL) {
-                *error = 1;
-                return NULL;
-            }
-            new_token->data.d = op.fd.d1(first->next->token.data.d);
-        } else {
-            new_token->type = TT_COMPLEX;
-            if(op.fc.c1 == NULL) {
-                *error = 1;
-                return NULL;
-            }
-            new_token->data.c = op.fc.c1(first->next->token.data.c);
+        if(op.fc.c1 == NULL) {
+            *error = 1;
+            return NULL;
         }
+        new_token->data.c = op.fc.c1(first->next->token.data.c);
 
         if(last == NULL)
             tl->begin = new_node;
@@ -121,21 +112,11 @@ token_list_node_t *tl_evalop(token_list_t *tl, uint32_t index, int *error) {
 
     // if right unary
     } else if(op.type == OP_RUNARY) {
-        if(last->token.type == TT_REAL) {
-            new_token->type = TT_REAL;
-            if(op.fd.d1 == NULL) {
-                *error = 1;
-                return NULL;
-            }
-            new_token->data.d = op.fd.d1(last->token.data.d);
-        } else {
-            new_token->type = TT_COMPLEX;
-            if(op.fc.c1 == NULL) {
-                *error = 1;
-                return NULL;
-            }
-            new_token->data.c = op.fc.c1(last->token.data.c);
+        if(op.fc.c1 == NULL) {
+            *error = 1;
+            return NULL;
         }
+        new_token->data.c = op.fc.c1(last->token.data.c);
 
         if(last2 == NULL)
             tl->begin = new_node;
@@ -149,32 +130,12 @@ token_list_node_t *tl_evalop(token_list_t *tl, uint32_t index, int *error) {
     } else {
         token_t *left_token = &last->token;
         token_t *right_token = &first->next->token;
-        enum token_type_t tt = TT_REAL;
 
-        // convert TT_REAL to TT_COMPLEX if one argument is TT_COMPLEX
-        if(left_token->type == TT_COMPLEX && right_token->type == TT_REAL) {
-            tt = TT_COMPLEX;
-            right_token->data.c = right_token->data.d;
-        } else if(left_token->type == TT_REAL && right_token->type == TT_COMPLEX) {
-            tt = TT_COMPLEX;
-            left_token->data.c = left_token->data.d;
+        if(op.fc.c2 == NULL) {
+            *error = 1;
+            return NULL;
         }
-
-        if(tt == TT_REAL) {
-            new_token->type = TT_REAL;
-            if(op.fd.d2 == NULL) {
-                *error = 1;
-                return NULL;
-            }
-            new_token->data.d = op.fd.d2(left_token->data.d, right_token->data.d);
-        } else {
-            new_token->type = TT_COMPLEX;
-            if(op.fc.c2 == NULL) {
-                *error = 1;
-                return NULL;
-            }
-            new_token->data.c = op.fc.c2(left_token->data.c, right_token->data.c);
-        }
+        new_token->data.c = op.fc.c2(left_token->data.c, right_token->data.c);
         new_node->next = first->next->next;
         _free_node(last);
         _free_node(first->next);
@@ -233,9 +194,6 @@ void tl_print(token_list_t *tl) {
 
         token_t *t = &curr->token;
         switch(t->type) {
-        case TT_REAL:
-            printf("[%u] Real(%.02Lf)", i++, t->data.d);
-            break;
         case TT_COMPLEX:
             printf("[%u] Complex(%.02Lf, %.02Lf)", i++, creall(t->data.c), cimagl(t->data.c));
             break;

@@ -19,13 +19,10 @@ libmath.a: $(LIBOBJS)
 	ar rcs $@ $^
 
 eval: eval.o token_list.o error.o tokenize.o evaluate.o operator.o function.o symbol.o
-# calculator: calculator.o libmath.a
-# 	$(CC) $(LDFLAGS) $(shell pkg-config --ldflags gtk+-3.0) -o $@ $^ $(LDLIBS)
 
+# calculator: calculator.c
+# 	$(CC) $(CFLAGS) $(shell pkg-config --cflags gtk+-3.0) -o $@ $< $(shell pkg-config --libs gtk+-3.0) -L. -lmath
 
-
-calculator: calculator.c
-	$(CC) $(CFLAGS) $(shell pkg-config --cflags gtk+-3.0) -o $@ $< $(shell pkg-config --libs gtk+-3.0) -L. -lmath
 eval.o: eval.c tokenize.h evaluate.h token_list.h token.h error.h _complex.h
 
 tokenize.o: tokenize.c tokenize.h operator.h token_list.h token.h error.h

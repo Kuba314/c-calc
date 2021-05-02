@@ -68,9 +68,7 @@ int main(int argc, char *argv[]) {
     tl_free(tokens);
 
     // print result
-    if(result.type == TT_REAL) {
-        printf("result = %Lf\n", result.data.d);
-    } else if(result.type == TT_COMPLEX) {
+    if(result.type == TT_COMPLEX) {
         printf("result = %Lf %c %Lfi\n", creall(result.data.c), (cimagl(result.data.c) < 0) ? '-' : '+', fabsl(cimagl(result.data.c)));
     } else {
         fatal("Mathlib returned nan result: %d\n", result.type);

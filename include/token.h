@@ -7,7 +7,6 @@
 #define __TOKEN_H__
 
 enum token_type_t {
-    TT_REAL,
     TT_COMPLEX,
     TT_OPERATOR,
     TT_SYMBOL,
@@ -19,7 +18,6 @@ typedef struct token_t token_t;
 struct token_t {
     enum token_type_t type;
     union {
-        long double d;
         complex_t c;
         operator_t op;
         char sym[MAX_SYM_LENGTH+1];
