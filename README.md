@@ -28,6 +28,12 @@ make
 * complex numbers (`1 - 2i`)
 * symbols (`pi`, `e`, `i` (imaginary number))
 * functions, although only `sqrt` and `abs` have been implemented so far
+    * `abs`
+    * `sqrt`, `power`, `root`
+    * `sin`, `cos`, `tan`
+    * `asin`, `acos`, `atan`
+    * `rand` (`0..1`)
+    * `crand` (unit circle vector)
 
 ## Prerequisities
 * gtk3 (only for the UI program)
